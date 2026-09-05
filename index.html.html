@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPG Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#14110d;
+    --bg-panel:#1f2318;
+    --bg-panel-2:#262b1c;
+    --gold:#d5ae62;
+    --gold-dim:#9c8253;
+    --blood:#8c3b3b;
+    --blood-bright:#b85454;
+    --nature:#4a5d3a;
+    --nature-bright:#6b8a54;
+    --parchment:#e8dfc8;
+    --parchment-dim:#a89f8a;
+    --line:#3a3628;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(213,174,98,0.06), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(74,93,58,0.08), transparent 50%),
+      var(--bg-deep);
+    color:var(--parchment);
+    font-family:'Spectral', serif;
+    min-height:100vh;
+  }
+  h1,h2,h3,.brand{font-family:'Cinzel', serif;}
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg-deep);}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px;}
+
+  .app{display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{
+    width:220px;
+    flex-shrink:0;
+    background:linear-gradient(180deg, var(--bg-panel), var(--bg-deep));
+    border-right:1px solid var(--line);
+    padding:28px 0;
+    display:flex;
+    flex-direction:column;
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+  .brand{
+    font-size:1.4rem;
+    font-weight:700;
+    color:var(--gold);
+    padding:0 24px 24px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:8px;
+    letter-spacing:0.02em;
+  }
+  .brand small{display:block;font-family:'Spectral',serif;font-size:0.72rem;color:var(--parchment-dim);font-weight:400;font-style:italic;margin-top:4px;}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 24px;
+    color:var(--parchment-dim);
+    cursor:pointer;
+    border-left:3px solid transparent;
+    font-size:0.95rem;
+    transition:background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .nav-item .ic{font-size:1.1rem;width:1.3em;text-align:center;}
+  .nav-item:hover{background:rgba(213,174,98,0.06);color:var(--parchment);}
+  .nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(213,174,98,0.08);}
+  .sidebar-footer{margin-top:auto;padding:16px 24px 0;font-size:0.72rem;color:var(--parchment-dim);border-top:1px solid var(--line);opacity:0.7;}
+
+  /* Main */
+  .main{flex:1;padding:36px 44px;max-width:1180px;}
+  .page-title{font-size:1.7rem;color:var(--gold);margin:0 0 6px;font-weight:700;}
+  .page-sub{color:var(--parchment-dim);font-style:italic;margin:0 0 28px;font-size:0.95rem;}
+  .hidden{display:none !important;}
+
+  /* Panel / card */
+  .panel{
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:22px;
+    position:relative;
+  }
+  .panel::before{
+    content:'';position:absolute;inset:0;border-radius:4px;pointer-events:none;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.25);
+  }
+  .grid{display:grid;gap:18px;}
+  .grid-cards{grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));}
+
+  /* Buttons */
+  button, .btn{
+    font-family:'Spectral', serif;
+    background:transparent;
+    border:1px solid var(--gold-dim);
+    color:var(--gold);
+    padding:9px 18px;
+    border-radius:3px;
+    cursor:pointer;
+    font-size:0.9rem;
+    transition:background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  button:hover{background:var(--gold);color:var(--bg-deep);border-color:var(--gold);}
+  button.primary{background:var(--gold);color:var(--bg-deep);}
+  button.primary:hover{background:#e8c580;}
+  button.danger{border-color:var(--blood);color:var(--blood-bright);}
+  button.danger:hover{background:var(--blood);color:var(--parchment);}
+  button.ghost{border-color:transparent;color:var(--parchment-dim);padding:6px 10px;}
+  button.ghost:hover{background:rgba(255,255,255,0.06);color:var(--parchment);border-color:transparent;}
+  button:disabled{opacity:0.4;cursor:default;}
+  button:disabled:hover{background:transparent;color:var(--gold);}
+
+  input, textarea, select{
+    font-family:'Spectral', serif;
+    background:var(--bg-deep);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    padding:9px 12px;
+    border-radius:3px;
+    font-size:0.92rem;
+    width:100%;
+  }
+  input:focus, textarea:focus, select:focus{outline:none;border-color:var(--gold-dim);}
+  label{font-size:0.78rem;color:var(--parchment-dim);display:block;margin-bottom:5px;letter-spacing:0.02em;}
+  .field{margin-bottom:14px;}
+  .row{display:flex;gap:12px;}
+  .row > *{flex:1;}
+
+  /* Character card */
+  .char-card{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:5px;padding:18px;}
+  .char-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+  .char-name{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);margin:0;}
+  .char-sub{font-size:0.8rem;color:var(--parchment-dim);margin:2px 0 0;}
+  .bar-wrap{margin:8px 0;}
+  .bar-label{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--parchment-dim);margin-bottom:3px;}
+  .bar{height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden;border:1px solid var(--line);}
+  .bar-fill{height:100%;transition:width 0.2s;}
+  .bar-fill.hp{background:linear-gradient(90deg, var(--blood), var(--blood-bright));}
+  .bar-fill.mana{background:linear-gradient(90deg, #3a5a8a, #5a7aac);}
+  .bar-fill.xp{background:linear-gradient(90deg, var(--nature), var(--nature-bright));}
+  .attrs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
+  .attr{background:var(--bg-deep);border:1px solid var(--line);border-radius:3px;padding:6px;text-align:center;}
+  .attr .k{font-size:0.65rem;color:var(--parchment-dim);letter-spacing:0.05em;}
+  .attr .v{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);}
+  .card-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+
+  /* Dice */
+  .dice-panel{max-width:480px;}
+  .dice-input-row{display:flex;gap:10px;}
+  .dice-input-row input{font-size:1.1rem;text-align:center;}
+  .dice-result{
+    margin-top:22px;text-align:center;padding:26px;border:1px solid var(--line);border-radius:5px;background:var(--bg-panel-2);
+  }
+  .dice-result .total{font-family:'Cinzel',serif;font-size:3rem;color:var(--gold);line-height:1;}
+  .dice-result.crit .total{color:var(--nature-bright);}
+  .dice-result.fail .total{color:var(--blood-bright);}
+  .dice-result .detail{color:var(--parchment-dim);font-size:0.85rem;margin-top:8px;}
+  .roll-history{margin-top:24px;}
+  .roll-history h3{font-size:0.9rem;color:var(--parchment-dim);text-transform:none;border-bottom:1px solid var(--line);padding-bottom:8px;}
+  .roll-row{display:flex;justify-content:space-between;padding:7px 0;font-size:0.85rem;border-bottom:1px dashed var(--line);}
+  .roll-row .exp{color:var(--parchment);}
+  .roll-row .tot{color:var(--gold);font-weight:600;}
+  .roll-row.crit .tot{color:var(--nature-bright);}
+  .roll-row.fail .tot{color:var(--blood-bright);}
+  .roll-row .time{color:var(--parchment-dim);font-size:0.75rem;}
+
+  /* Map */
+  .map-wrap{
+    position:relative;width:100%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:5px;overflow:hidden;
+  }
+  .map-marker{
+    position:absolute;transform:translate(-50%,-50%);font-size:1.4rem;cursor:pointer;
+    filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));transition:transform 0.15s;
+  }
+  .map-marker:hover{transform:translate(-50%,-50%) scale(1.25);}
+  .map-marker.deco{font-size:1.1rem;opacity:0.75;cursor:default;pointer-events:none;}
+  .map-legend{margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;font-size:0.82rem;color:var(--parchment-dim);}
+  .map-tooltip{
+    position:absolute;background:var(--bg-deep);border:1px solid var(--gold-dim);border-radius:4px;padding:8px 12px;
+    font-size:0.8rem;max-width:200px;pointer-events:none;z-index:10;transform:translate(-50%,-120%);
+  }
+  .map-tooltip .t-name{color:var(--gold);font-weight:600;margin-bottom:2px;}
+
+  /* Lists (monsters, items, quests) */
+  .list-row{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:14px 16px;border:1px solid var(--line);border-radius:4px;background:var(--bg-panel-2);margin-bottom:10px;
+  }
+  .list-row .li-main{flex:1;}
+  .li-title{color:var(--parchment);font-weight:500;}
+  .li-title .icon{margin-right:8px;}
+  .li-sub{color:var(--parchment-dim);font-size:0.8rem;margin-top:2px;}
+  .li-stats{display:flex;gap:14px;font-size:0.78rem;color:var(--parchment-dim);}
+  .li-stats b{color:var(--gold);}
+  .quest-done .li-title{text-decoration:line-through;color:var(--parchment-dim);}
+  .chk{width:20px;height:20px;flex-shrink:0;accent-color:var(--gold);}
+
+  /* Diary */
+  .diary-textarea{width:100%;min-height:340px;resize:vertical;font-size:1rem;line-height:1.7;font-family:'Spectral',serif;}
+  .diary-save-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+  .save-status{font-size:0.8rem;color:var(--nature-bright);opacity:0;transition:opacity 0.3s;}
+  .save-status.show{opacity:1;}
+
+  /* Modal */
+  .modal-bg{
+    position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;
+    backdrop-filter:blur(2px);
+  }
+  .modal{
+    background:var(--bg-panel);border:1px solid var(--gold-dim);border-radius:6px;padding:26px;width:420px;max-width:90vw;
+    max-height:85vh;overflow-y:auto;
+  }
+  .modal h3{color:var(--gold);margin-top:0;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
+  .empty-state{text-align:center;padding:50px 20px;color:var(--parchment-dim);font-style:italic;}
+  .loading{text-align:center;padding:50px;color:var(--parchment-dim);}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+
+  @media (max-width: 800px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:14px 0;}
+    .brand{display:none;}
+    .sidebar-footer{display:none;}
+    .nav-item{border-left:none;border-bottom:3px solid transparent;flex-shrink:0;}
+    .nav-item.active{border-left-color:transparent;border-bottom-color:var(--gold);}
+    .main{padding:24px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">Runa &amp; Trilha<small>Diário de Campanha</small></div>
+    <div class="nav-item active" data-page="characters"><span class="ic">🛡️</span> Personagens</div>
+    <div class="nav-item" data-page="dice"><span class="ic">🎲</span> Dados</div>
+    <div class="nav-item" data-page="map"><span class="ic">🗺️</span> Mapa</div>
+    <div class="nav-item" data-page="monsters"><span class="ic">👺</span> Monstros</div>
+    <div class="nav-item" data-page="quests"><span class="ic">📜</span> Missões</div>
+    <div class="nav-item" data-page="items"><span class="ic">🎒</span> Itens</div>
+    <div class="nav-item" data-page="diary"><span class="ic">📖</span> Diário</div>
+    <div class="sidebar-footer" id="conn-status">conectando…</div>
+  </div>
+
+  <div class="main">
+
+    <!-- CHARACTERS -->
+    <div id="page-characters" class="page">
+      <h1 class="page-title">Personagens</h1>
+      <p class="page-sub">As fichas dos aventureiros da sua mesa.</p>
+      <div class="toolbar">
+        <span></span>
+        <button class="primary" onclick="openCharModal()">+ Novo personagem</button>
+      </div>
+      <div id="characters-list" class="grid grid-cards"><div class="loading">Carregando fichas…</div></div>
+    </div>
+
+    <!-- DICE -->
+    <div id="page-dice" class="page hidden">
+      <h1 class="page-title">Rolador de Dados</h1>
+      <p class="page-sub">Digite uma expressão como <code>1d20+3</code> ou <code>2d6</code>.</p>
+      <div class="panel dice-panel">
+        <div class="dice-input-row">
+          <input id="dice-expr" type="text" placeholder="1d20+3" value="1d20">
+          <button class="primary" onclick="rollDice()">Rolar</button>
+        </div>
+        <div id="dice-result"></div>
+      </div>
+      <div class="roll-history panel" style="margin-top:20px;">
+        <h3>Histórico</h3>
+        <div id="roll-history-list"><div class="loading">Carregando…</div></div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div id="page-map" class="page hidden">
+      <h1 class="page-title">Mapa do Mundo</h1>
+      <p class="page-sub">Locais, monstros e o terreno da sua campanha.</p>
+      <div class="panel">
+        <div id="map-wrap" class="map-wrap"></div>
+        <div class="map-legend">
+          <span>📍 Local</span><span>👹 Monstro</span><span>🌳 Cenário</span>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:20px;">
+        <h3 style="color:var(--gold);margin:0;font-family:'Cinzel',serif;font-size:1.05rem;">Locais cadastrados</h3>
+        <button class="primary" onclick="openLocationModal()">+ Novo local</button>
+      </div>
+      <div id="locations-list"></div>
+    </div>
+
+    <!-- MONSTERS -->
+    <div id="page-monsters" class="page hidden">
+      <h1 class="page-title">Bestiário</h1>
+      <p class="page-sub">As ameaças que rondam o mundo.</p>
+      <div class="toolbar"><span></span><button class="primary" onclick="openMonsterModal()">+ Novo monstro</button></div>
+      <div id="monsters-list"><div class="loading">Carregando…</div></div>
+    </div>
+
+    <!-- QUESTS -->
+    <div id="page-quests" class="page hidden">
+      <h1 class="page-title">Missões</h1>
+      <p class="page-sub">O que precisa ser feito nesta jornada.</p>
+      <div class="toolbar"><span></span><button class="primary" onclick="openQuestModal()">+ Nova missão</button></div>
+      <div id="quests-list"><div class="loading">Carregando…</div></div>
+    </div>
+
+    <!-- ITEMS -->
+    <div id="page-items" class="page hidden">
+      <h1 class="page-title">Itens</h1>
+      <p class="page-sub">Tesouros, equipamentos e curiosidades.</p>
+      <div class="toolbar"><span></span><button class="primary" onclick="openItemModal()">+ Novo item</button></div>
+      <div id="items-list"><div class="loading">Carregando…</div></div>
+    </div>
+
+    <!-- DIARY -->
+    <div id="page-diary" class="page hidden">
+      <h1 class="page-title">Diário</h1>
+      <p class="page-sub">Registre os acontecimentos da campanha.</p>
+      <div class="panel">
+        <textarea id="diary-text" class="diary-textarea" placeholder="Era uma vez..."></textarea>
+        <div class="diary-save-row">
+          <span id="diary-status" class="save-status">Salvo ✓</span>
+          <button class="primary" onclick="saveDiary()">Salvar entrada</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="modal-root"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://tqkcfkwjnxgypgkddonq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_kmTfDl8w1m_RfKpH_wTSwQ__x_zoPx4';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+window.supabase = supabase;
+
+// ---------- Navigation ----------
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    navItems.forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    document.getElementById('page-' + item.dataset.page).classList.remove('hidden');
+  });
+});
+
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML = ''; }
+
+// ================= CHARACTERS =================
+let characters = [];
+
+async function loadCharacters(){
+  const { data, error } = await supabase.from('characters').select('*').order('created_at');
+  if(error){ document.getElementById('characters-list').innerHTML = `<div class="empty-state">Erro ao carregar: ${escapeHtml(error.message)}</div>`; return; }
+  characters = data || [];
+  renderCharacters();
+}
+
+function renderCharacters(){
+  const el = document.getElementById('characters-list');
+  if(characters.length === 0){ el.innerHTML = '<div class="empty-state">Nenhum personagem ainda. Crie o primeiro aventureiro.</div>'; return; }
+  el.innerHTML = characters.map(c => {
+    const attrs = c.attrs || {};
+    const hpPct = Math.max(0, Math.min(100, (c.hp / (c.max_hp || 1)) * 100));
+    const manaPct = Math.max(0, Math.min(100, (c.mana / (c.max_mana || 1)) * 100));
+    const xpPct = Math.max(0, Math.min(100, ((c.xp || 0) % 100)));
+    return `
+    <div class="char-card">
+      <div class="char-head">
+        <div>
+          <p class="char-name">${escapeHtml(c.name)}</p>
+          <p class="char-sub">${escapeHtml(c.race)} · ${escapeHtml(c.class)} · Nível ${c.level}</p>
+        </div>
+      </div>
+      <div class="bar-wrap"><div class="bar-label"><span>HP</span><span>${c.hp}/${c.max_hp}</span></div><div class="bar"><div class="bar-fill hp" style="width:${hpPct}%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span>Mana</span><span>${c.mana}/${c.max_mana}</span></div><div class="bar"><div class="bar-fill mana" style="width:${manaPct}%"></div></div></div>
+      <div class="bar-wrap"><div class="bar-label"><span>XP</span><span>${c.xp}</span></div><div class="bar"><div class="bar-fill xp" style="width:${xpPct}%"></div></div></div>
+      <div class="attrs-grid">
+        ${['FOR','DES','CON','INT','SAB','CAR'].map(k => `<div class="attr"><div class="k">${k}</div><div class="v">${attrs[k] ?? 10}</div></div>`).join('')}
+      </div>
+      <div class="card-actions">
+        <button class="ghost" onclick="openCharModal(${c.id})">Editar</button>
+        <button class="danger" onclick="deleteCharacter(${c.id})">Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openCharModal = function(id){
+  const c = id ? characters.find(x => x.id === id) : null;
+  const attrs = c ? (c.attrs || {}) : {};
+  document.getElementById('modal-root').innerHTML = `
+  <div class="modal-bg" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>${c ? 'Editar personagem' : 'Novo personagem'}</h3>
+      <div class="field"><label>Nome</label><input id="f-name" value="${c ? escapeHtml(c.name) : ''}"></div>
+      <div class="row">
+        <div class="field"><label>Raça</label><input id="f-race" value="${c ? escapeHtml(c.race) : 'Humano'}"></div>
+        <div class="field"><label>Classe</label><input id="f-class" value="${c ? escapeHtml(c.class) : 'Aventureiro'}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Nível</label><input id="f-level" type="number" value="${c ? c.level : 1}"></div>
+        <div class="field"><label>XP</label><input id="f-xp" type="number" value="${c ? c.xp : 0}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>HP</label><input id="f-hp" type="number" value="${c ? c.hp : 20}"></div>
+        <div class="field"><label>HP Máx.</label><input id="f-maxhp" type="number" value="${c ? c.max_hp : 20}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Mana</label><input id="f-mana" type="number" value="${c ? c.mana : 10}"></div>
+        <div class="field"><label>Mana Máx.</label><input id="f-maxmana" type="number" value="${c ? c.max_mana : 10}"></div>
+      </div>
+      <div class="field"><label>Atributos</label>
+        <div class="row" style="flex-wrap:wrap;">
+          ${['FOR','DES','CON','INT','SAB','CAR'].map(k => `
+            <div style="min-width:70px;"><label style="margin-bottom:2px;">${k}</label><input id="f-attr-${k}" type="number" value="${attrs[k] ?? 10}"></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost" onclick="closeModal()">Cancelar</button>
+        <button class="primary" onclick="saveCharacter(${c ? c.id : 'null'})">Salvar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.saveCharacter = async function(id){
+  const attrs = {};
+  ['FOR','DES','CON','INT','SAB','CAR'].forEach(k => attrs[k] = parseInt(document.getElementById('f-attr-'+k).value) || 10);
+  const payload = {
+    name: document.getElementById('f-name').value.trim() || 'Sem nome',
+    race: document.getElementById('f-race').value.trim(),
+    class: document.getElementById('f-class').value.trim(),
+    level: parseInt(document.getElementById('f-level').value) || 1,
+    xp: parseInt(document.getElementById('f-xp').value) || 0,
+    hp: parseInt(document.getElementById('f-hp').value) || 0,
+    max_hp: parseInt(document.getElementById('f-maxhp').value) || 20,
+    mana: parseInt(document.getElementById('f-mana').value) || 0,
+    max_mana: parseInt(document.getElementById('f-maxmana').value) || 10,
+    attrs
+  };
+  if(id){
+    await supabase.from('characters').update(payload).eq('id', id);
+  } else {
+    payload.id = Date.now();
+    await supabase.from('characters').insert(payload);
+  }
+  closeModal();
+  loadCharacters();
+}
+
+window.deleteCharacter = async function(id){
+  if(!confirm('Excluir este personagem?')) return;
+  await supabase.from('characters').delete().eq('id', id);
+  loadCharacters();
+}
+
+// ================= DICE =================
+function parseDice(expr){
+  const m = expr.replace(/\s/g,'').match(/^(\d*)d(\d+)([+-]\d+)?$/i);
+  if(!m) return null;
+  const count = parseInt(m[1] || '1');
+  const sides = parseInt(m[2]);
+  const mod = m[3] ? parseInt(m[3]) : 0;
+  if(count < 1 || count > 100 || sides < 2) return null;
+  const rolls = [];
+  for(let i=0;i<count;i++) rolls.push(Math.floor(Math.random()*sides)+1);
+  const total = rolls.reduce((a,b)=>a+b,0) + mod;
+  const critical = count === 1 && sides === 20 && rolls[0] === 20;
+  const failure = count === 1 && sides === 20 && rolls[0] === 1;
+  return { expression: expr, rolls, total, mod, critical, failure };
+}
+
+window.rollDice = async function(){
+  const expr = document.getElementById('dice-expr').value.trim() || '1d20';
+  const result = parseDice(expr);
+  const resEl = document.getElementById('dice-result');
+  if(!result){
+    resEl.innerHTML = `<div class="dice-result"><div class="detail">Expressão inválida. Use o formato NdM+X, ex: 2d6+3</div></div>`;
+    return;
+  }
+  const cls = result.critical ? 'crit' : (result.failure ? 'fail' : '');
+  resEl.innerHTML = `
+    <div class="dice-result ${cls}">
+      <div class="total">${result.total}</div>
+      <div class="detail">${result.expression} → [${result.rolls.join(', ')}]${result.mod ? (result.mod>0?' +':' ')+result.mod : ''}
+        ${result.critical ? ' · CRÍTICO!' : ''}${result.failure ? ' · FALHA CRÍTICA' : ''}</div>
+    </div>`;
+  await supabase.from('rolls').insert({
+    expression: result.expression, rolls: result.rolls, total: result.total,
+    mod: result.mod, critical: result.critical, failure: result.failure
+  });
+  loadRollHistory();
+}
+
+async function loadRollHistory(){
+  const { data, error } = await supabase.from('rolls').select('*').order('rolled_at', { ascending:false }).limit(30);
+  const el = document.getElementById('roll-history-list');
+  if(error){ el.innerHTML = `<div class="empty-state">Erro ao carregar histórico.</div>`; return; }
+  if(!data || data.length === 0){ el.innerHTML = '<div class="empty-state">Nenhuma rolagem ainda.</div>'; return; }
+  el.innerHTML = data.map(r => {
+    const cls = r.critical ? 'crit' : (r.failure ? 'fail' : '');
+    const time = new Date(r.rolled_at).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    return `<div class="roll-row ${cls}">
+      <span class="exp">${escapeHtml(r.expression)} <span class="time">[${r.rolls.join(',')}]</span></span>
+      <span class="tot">${r.total}</span>
+      <span class="time">${time}</span>
+    </div>`;
+  }).join('');
+}
+
+// ================= MAP =================
+let locations = [], monsters = [], mapElements = [], mapSettings = null;
+
+async function loadMap(){
+  const [locRes, monRes, elRes, setRes] = await Promise.all([
+    supabase.from('locations').select('*'),
+    supabase.from('monsters').select('*'),
+    supabase.from('map_elements').select('*'),
+    supabase.from('map_settings').select('*').eq('id',1).maybeSingle()
+  ]);
+  locations = locRes.data || [];
+  monsters = monRes.data || [];
+  mapElements = elRes.data || [];
+  mapSettings = setRes.data;
+  renderMap();
+  renderLocationsList();
+}
+
+function renderMap(){
+  const wrap = document.getElementById('map-wrap');
+  const bg = mapSettings ? mapSettings.bg_color : '#182016';
+  const accent = mapSettings ? mapSettings.accent : '#d5ae62';
+  wrap.style.background = `radial-gradient(ellipse at 30% 20%, ${accent}22, transparent 60%), ${bg}`;
+  let html = '';
+  mapElements.forEach(el => {
+    let icon = '🌳';
+    if(el.type === 'road') icon = '〜';
+    else if(el.type === 'region') icon = '';
+    if(el.type === 'region') return; // regions are just labels, skip icon clutter
+    html += `<div class="map-marker deco" style="left:${el.x}%;top:${el.y}%;transform:translate(-50%,-50%) rotate(${el.rotation||0}deg)">${icon}</div>`;
+  });
+  locations.forEach(l => {
+    html += `<div class="map-marker" style="left:${l.x}%;top:${l.y}%" title="${escapeHtml(l.name)}: ${escapeHtml(l.description||'')}">${l.icon || '📍'}</div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function renderLocationsList(){
+  const el = document.getElementById('locations-list');
+  if(locations.length === 0){ el.innerHTML = '<div class="empty-state">Nenhum local cadastrado.</div>'; return; }
+  el.innerHTML = locations.map(l => `
+    <div class="list-row">
+      <div class="li-main">
+        <div class="li-title"><span class="icon">${l.icon||'📍'}</span>${escapeHtml(l.name)}</div>
+        <div class="li-sub">${escapeHtml(l.description||'')}</div>
+      </div>
+      <button class="danger" onclick="deleteLocation(${l.id})">Excluir</button>
+    </div>`).join('');
+}
+
+window.openLocationModal = function(){
+  document.getElementById('modal-root').innerHTML = `
+  <div class="modal-bg" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>Novo local</h3>
+      <div class="field"><label>Nome</label><input id="l-name"></div>
+      <div class="field"><label>Ícone (emoji)</label><input id="l-icon" value="📍"></div>
+      <div class="row">
+        <div class="field"><label>Posição X (0-100)</label><input id="l-x" type="number" value="50"></div>
+        <div class="field"><label>Posição Y (0-100)</label><input id="l-y" type="number" value="50"></div>
+      </div>
+      <div class="field"><label>Descrição</label><textarea id="l-desc" rows="3"></textarea></div>
+      <div class="modal-actions">
+        <button class="ghost" onclick="closeModal()">Cancelar</button>
+        <button class="primary" onclick="saveLocation()">Salvar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.saveLocation = async function(){
+  await supabase.from('locations').insert({
+    name: document.getElementById('l-name').value.trim() || 'Local sem nome',
+    icon: document.getElementById('l-icon').value.trim() || '📍',
+    x: parseFloat(document.getElementById('l-x').value) || 50,
+    y: parseFloat(document.getElementById('l-y').value) || 50,
+    description: document.getElementById('l-desc').value.trim()
+  });
+  closeModal();
+  loadMap();
+}
+
+window.deleteLocation = async function(id){
+  if(!confirm('Excluir este local?')) return;
+  await supabase.from('locations').delete().eq('id', id);
+  loadMap();
+}
+
+// ================= MONSTERS =================
+async function loadMonsters(){
+  const { data, error } = await supabase.from('monsters').select('*');
+  const el = document.getElementById('monsters-list');
+  if(error){ el.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; return; }
+  monsters = data || [];
+  if(monsters.length === 0){ el.innerHTML = '<div class="empty-state">Nenhum monstro cadastrado.</div>'; return; }
+  el.innerHTML = monsters.map(m => `
+    <div class="list-row">
+      <div class="li-main">
+        <div class="li-title"><span class="icon">${m.icon||'👹'}</span>${escapeHtml(m.name)}</div>
+        <div class="li-sub">${escapeHtml(m.description||'')}</div>
+      </div>
+      <div class="li-stats">
+        <span>HP <b>${m.hp}</b></span>
+        <span>Armadura <b>${m.armor}</b></span>
+        <span>Loot <b>${escapeHtml(m.loot||'-')}</b></span>
+      </div>
+      <button class="danger" onclick="deleteMonster(${m.id})">Excluir</button>
+    </div>`).join('');
+}
+
+window.openMonsterModal = function(){
+  document.getElementById('modal-root').innerHTML = `
+  <div class="modal-bg" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>Novo monstro</h3>
+      <div class="field"><label>Nome</label><input id="m-name"></div>
+      <div class="field"><label>Ícone (emoji)</label><input id="m-icon" value="👹"></div>
+      <div class="row">
+        <div class="field"><label>HP</label><input id="m-hp" type="number" value="20"></div>
+        <div class="field"><label>Armadura</label><input id="m-armor" type="number" value="10"></div>
+      </div>
+      <div class="field"><label>Loot</label><input id="m-loot"></div>
+      <div class="field"><label>Descrição</label><textarea id="m-desc" rows="3"></textarea></div>
+      <div class="modal-actions">
+        <button class="ghost" onclick="closeModal()">Cancelar</button>
+        <button class="primary" onclick="saveMonster()">Salvar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.saveMonster = async function(){
+  await supabase.from('monsters').insert({
+    name: document.getElementById('m-name').value.trim() || 'Monstro sem nome',
+    icon: document.getElementById('m-icon').value.trim() || '👹',
+    hp: parseInt(document.getElementById('m-hp').value) || 1,
+    armor: parseInt(document.getElementById('m-armor').value) || 0,
+    loot: document.getElementById('m-loot').value.trim(),
+    description: document.getElementById('m-desc').value.trim()
+  });
+  closeModal();
+  loadMonsters();
+}
+
+window.deleteMonster = async function(id){
+  if(!confirm('Excluir este monstro?')) return;
+  await supabase.from('monsters').delete().eq('id', id);
+  loadMonsters();
+}
+
+// ================= QUESTS =================
+async function loadQuests(){
+  const { data, error } = await supabase.from('quests').select('*').order('created_at');
+  const el = document.getElementById('quests-list');
+  if(error){ el.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; return; }
+  if(!data || data.length === 0){ el.innerHTML = '<div class="empty-state">Nenhuma missão ainda.</div>'; return; }
+  el.innerHTML = data.map(q => `
+    <div class="list-row ${q.completed ? 'quest-done' : ''}">
+      <input type="checkbox" class="chk" ${q.completed ? 'checked' : ''} onchange="toggleQuest(${q.id}, this.checked)">
+      <div class="li-main">
+        <div class="li-title">${escapeHtml(q.title)}</div>
+        <div class="li-sub">${escapeHtml(q.description||'')}</div>
+      </div>
+      <button class="danger" onclick="deleteQuest(${q.id})">Excluir</button>
+    </div>`).join('');
+}
+
+window.openQuestModal = function(){
+  document.getElementById('modal-root').innerHTML = `
+  <div class="modal-bg" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>Nova missão</h3>
+      <div class="field"><label>Título</label><input id="q-title"></div>
+      <div class="field"><label>Descrição</label><textarea id="q-desc" rows="3"></textarea></div>
+      <div class="modal-actions">
+        <button class="ghost" onclick="closeModal()">Cancelar</button>
+        <button class="primary" onclick="saveQuest()">Salvar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.saveQuest = async function(){
+  await supabase.from('quests').insert({
+    title: document.getElementById('q-title').value.trim() || 'Missão sem título',
+    description: document.getElementById('q-desc').value.trim()
+  });
+  closeModal();
+  loadQuests();
+}
+
+window.toggleQuest = async function(id, completed){
+  await supabase.from('quests').update({ completed }).eq('id', id);
+  loadQuests();
+}
+
+window.deleteQuest = async function(id){
+  if(!confirm('Excluir esta missão?')) return;
+  await supabase.from('quests').delete().eq('id', id);
+  loadQuests();
+}
+
+// ================= ITEMS =================
+async function loadItems(){
+  const { data, error } = await supabase.from('items').select('*').order('created_at');
+  const el = document.getElementById('items-list');
+  if(error){ el.innerHTML = '<div class="empty-state">Erro ao carregar.</div>'; return; }
+  if(!data || data.length === 0){ el.innerHTML = '<div class="empty-state">Nenhum item cadastrado.</div>'; return; }
+  el.innerHTML = data.map(i => `
+    <div class="list-row">
+      <div class="li-main">
+        <div class="li-title">${escapeHtml(i.name)}</div>
+        <div class="li-sub">${escapeHtml(i.description||'')}</div>
+      </div>
+      <button class="danger" onclick="deleteItem(${i.id})">Excluir</button>
+    </div>`).join('');
+}
+
+window.openItemModal = function(){
+  document.getElementById('modal-root').innerHTML = `
+  <div class="modal-bg" onclick="if(event.target===this) closeModal()">
+    <div class="modal">
+      <h3>Novo item</h3>
+      <div class="field"><label>Nome</label><input id="i-name"></div>
+      <div class="field"><label>Descrição</label><textarea id="i-desc" rows="3"></textarea></div>
+      <div class="modal-actions">
+        <button class="ghost" onclick="closeModal()">Cancelar</button>
+        <button class="primary" onclick="saveItem()">Salvar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.saveItem = async function(){
+  await supabase.from('items').insert({
+    name: document.getElementById('i-name').value.trim() || 'Item sem nome',
+    description: document.getElementById('i-desc').value.trim()
+  });
+  closeModal();
+  loadItems();
+}
+
+window.deleteItem = async function(id){
+  if(!confirm('Excluir este item?')) return;
+  await supabase.from('items').delete().eq('id', id);
+  loadItems();
+}
+
+// ================= DIARY =================
+let diaryId = null;
+async function loadDiary(){
+  const { data } = await supabase.from('diary_entries').select('*').order('created_at', {ascending:false}).limit(1).maybeSingle();
+  if(data){ diaryId = data.id; document.getElementById('diary-text').value = data.content || ''; }
+}
+window.saveDiary = async function(){
+  const content = document.getElementById('diary-text').value;
+  if(diaryId){
+    await supabase.from('diary_entries').update({ content }).eq('id', diaryId);
+  } else {
+    const { data } = await supabase.from('diary_entries').insert({ content }).select().single();
+    if(data) diaryId = data.id;
+  }
+  const status = document.getElementById('diary-status');
+  status.classList.add('show');
+  setTimeout(() => status.classList.remove('show'), 1800);
+}
+
+// ================= INIT =================
+async function init(){
+  document.getElementById('conn-status').textContent = 'conectando…';
+  try {
+    await Promise.all([loadCharacters(), loadRollHistory(), loadMap(), loadMonsters(), loadQuests(), loadItems(), loadDiary()]);
+    document.getElementById('conn-status').textContent = '● conectado ao Supabase';
+  } catch(e){
+    document.getElementById('conn-status').textContent = '● erro de conexão';
+    console.error(e);
+  }
+}
+window.closeModal = closeModal;
+init();
+</script>
+</body>
+</html>
